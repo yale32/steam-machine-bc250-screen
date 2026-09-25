@@ -1,0 +1,14 @@
+# Lint configuration. The project itself is plain scripts with no build step:
+# `setup.sh` creates a venv from requirements.txt, so there is no [project] table here.
+[tool.ruff]
+line-length = 130
+target-version = "py311"
+
+[tool.ruff.lint]
+# Correctness rules only. Typing style (Optional[x] vs x | None) and import
+# ordering are left as written — this is small, readable, hardware-specific code.
+select = ["E", "F", "W", "B"]
+ignore = [
+    "E501",  # long lines are used deliberately for the aligned config/layout tables
+    "E241",  # ditto: extra spaces after a comma keep those tables aligned
+]

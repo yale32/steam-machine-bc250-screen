@@ -1,0 +1,4 @@
+pyserial>=3.5     # serial link to the Turing screen (used by the driver library)
+Pillow>=10         # frame rendering
+numpy>=1.26        # RGB565 image serialisation (used by the driver library)
+psutil>=5.9        # CPU / memory / disk stats

@@ -1,0 +1,57 @@
+name: Bug report
+description: Something renders wrong, reads wrong, or does not start
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Readings that the kernel does not expose deliberately show as `--` rather than failing.
+        If a value is missing, the sysfs path it comes from is the most useful thing you can attach.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw on the screen (or in the log) versus what you expected.
+    validations:
+      required: true
+
+  - type: input
+    id: hardware
+    attributes:
+      label: Board and screen
+      description: e.g. "AMD BC-250, Turing Smart Screen 3.5in RevA"
+      placeholder: AMD BC-250, Turing Smart Screen 3.5" RevA
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: OS and kernel
+      description: Output of `uname -r`, plus the distribution.
+      placeholder: SteamOS 3.6, 6.11.8-valve
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log output
+      description: "`journalctl --user -u bc250-screen -n 50` (or the output of running `monitor.py` by hand)."
+      render: shell
+
+  - type: textarea
+    id: sysfs
+    attributes:
+      label: Relevant sysfs values
+      description: For a wrong or missing reading, the path and its contents, e.g. `cat /sys/class/hwmon/hwmon*/name`.
+      render: shell
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I ran `./setup.sh` and it completed without errors
+        - label: Only one program was using the screen (the service was stopped if I ran `monitor.py` by hand)

@@ -1,0 +1,14 @@
+[Unit]
+Description=BC-250 Turing 3.5" screen monitor
+
+[Service]
+# @DIR@ is replaced with the checkout path by install-service.sh; quoted so a path with spaces works.
+ExecStart="@DIR@/.venv/bin/python" -u "@DIR@/monitor.py"
+# Optional overrides, one VAR=value per line (BRIGHTNESS, UPDATE_SECS, ORIENTATION, DISK_MOUNTS ...).
+EnvironmentFile=-%h/.config/bc250-screen.env
+# The driver library exits cleanly if the screen cannot be opened, so restart on any exit.
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

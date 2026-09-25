@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt ruff
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Byte-compile
+        run: python -m compileall -q monitor.py hoststats.py
+
+      # The screen driver is imported lazily, so the full layout renders on a
+      # machine with no screen and no BC-250 attached. Readings this runner
+      # cannot provide show as "--"; the point is that drawing does not crash.
+      - name: Headless render
+        run: |
+          python monitor.py --preview /tmp/preview.png
+          python monitor.py --preview-splash /tmp/splash.png
+          test -s /tmp/preview.png && test -s /tmp/splash.png
+
+      - name: Upload rendered frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: preview-py${{ matrix.python-version }}
+          path: /tmp/*.png
+          if-no-files-found: ignore
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: ShellCheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
+          shellcheck setup.sh install-service.sh
