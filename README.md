@@ -14,6 +14,14 @@ Everything is read from **sysfs / procfs** — no root, no vendor tools, nothing
 
 ## What it shows
 
+<p align="center">
+  <img src="docs/screen.jpg" alt="The 3.5&quot; panel showing CPU, GPU, memory, disk, temperature and WiFi stats for the BC-250" width="820">
+</p>
+
+<p align="center"><sub>The real panel, photographed. The SSID and IP are blurred; everything else is a live reading.</sub></p>
+
+The same layout in text form:
+
 ```
 ┌ BC-250 SteamMachine (logo) ─────────────── 12:34:56 ┐
 │ CPU   12%                │ MEM   19%  2.8 GB / 14.6 GB│
@@ -57,6 +65,12 @@ The amdgpu **clock (sclk) reading is not shown** — it is unreliable on this pl
 ---
 
 ## Hardware
+
+<p align="center">
+  <img src="docs/screen-installed.jpg" alt="The screen flush-mounted in the front panel of a wooden Steam Machine enclosure" width="820">
+</p>
+
+<p align="center"><sub>Flush-mounted in the front panel of the case the BC-250 lives in.</sub></p>
 
 | | |
 |---|---|
@@ -188,6 +202,7 @@ requirements.txt        Python dependencies
 pyproject.toml          ruff (lint) configuration
 assets/steam-logo.png   Steam logo shown in the title bar (Valve trademark; recoloured at runtime)
 .github/workflows/ci.yml  lint + a headless --preview render on every push
+docs/                   photographs used by this README
 ```
 
 Created at runtime and git-ignored: `.venv/` (dependencies), `vendor/` (the driver library) and `run/` (the clean-stop marker and the driver's log).
