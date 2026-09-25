@@ -8,6 +8,8 @@ Live system stats for an **AMD BC-250 running SteamOS**, rendered on a **Turing 
 
 Everything is read from **sysfs / procfs** — no root, no vendor tools, nothing installed system-wide, so it runs happily against SteamOS's read-only root filesystem.
 
+Built on **[mathoudebine/turing-smart-screen-python](https://github.com/mathoudebine/turing-smart-screen-python)** — the reverse-engineered driver library that speaks the Turing panels' serial protocol. That project does the talking to the screen; this one supplies the BC-250 readings and the layout. `setup.sh` fetches it at install time, pinned to a known commit. If you have a Turing screen and want themes, multiple revisions and a GUI, go there first — this repository is a single purpose-built layout, not a general tool.
+
 > **Scope.** This is a personal project tuned to one specific pairing: an AMD BC-250 (Cyan Skillfish APU) and a 3.5" RevA Turing screen. The layout, the sensor names and the GPU workarounds are all specific to that combination. It is published in case it is useful — as a working reference for BC-250 sysfs quirks, or as a starting point to adapt. See [Adapting it to other hardware](#adapting-it-to-other-hardware).
 
 ---
@@ -78,6 +80,34 @@ The amdgpu **clock (sclk) reading is not shown** — it is unreliable on this pl
 | Connection | `/dev/ttyACM0` (found automatically); `deck` has access through a udev ACL, no root or `uucp` membership needed |
 | Host | AMD BC-250, SteamOS, Python 3.13 |
 
+### Where to get the screen
+
+These are sold on AliExpress under a pile of near-identical names. The listings churn constantly, so rather than a single item link that will rot, here is the search:
+
+**→ [Turing Smart Screen 3.5" on AliExpress](https://www.aliexpress.com/w/wholesale-turing-smart-screen-3.5.html)**
+
+They also turn up on Amazon and eBay under the same descriptions. Expect roughly US$20–30.
+
+Before buying, check the listing is the right panel — several visually identical screens speak completely different protocols:
+
+| Check | Wanted |
+|---|---|
+| Size / resolution | 3.5", 320 × 480, USB-C |
+| Serial ID | `USB35INCHIPSV2` |
+| USB id | `1a86:5722` (a CH340-class serial bridge) |
+| Protocol | What this code calls **RevA** |
+
+The 5" and 8.8" Turing models, and the lookalikes sold as **XuanFang**, **UsbPCMonitor** or **Kipye Qiye**, use different protocols and will *not* work with `monitor.py` unmodified — though the upstream driver library supports several of them, so a port is mostly a matter of swapping the `LcdComm` class (see [Adapting it to other hardware](#adapting-it-to-other-hardware)).
+
+Upstream keeps the authoritative rundown of the variants and how to tell them apart: [Hardware revisions](https://github.com/mathoudebine/turing-smart-screen-python/wiki/Hardware-revisions). Note that "revision A" is reseller shorthand rather than an official Turing designation.
+
+Once it is plugged in, confirm you have the right one:
+
+```bash
+ls /dev/serial/by-id/          # the entry contains Turing_UsbMonitor_USB35INCHIPSV2
+lsusb | grep 1a86:5722
+```
+
 ### Screen speed
 
 The link moves roughly **80,000 pixels/s**: a full repaint takes ~1.9 s. So `monitor.py` diffs each frame in 16 × 16 tiles and sends only what changed. A typical update is 1,500–5,000 px and takes 35–100 ms. A full repaint happens at startup and every `FULL_REFRESH_SECS` (default 10 min) to clear any glitch.
@@ -87,7 +117,7 @@ The link moves roughly **80,000 pixels/s**: a full repaint takes ~1.9 s. So `mon
 ## Requirements
 
 - An **AMD BC-250** board running **SteamOS** (or any Linux with the amdgpu driver — see [Adapting it to other hardware](#adapting-it-to-other-hardware))
-- A **Turing Smart Screen 3.5"** (USB `1a86:5722`, serial `USB35INCHIPSV2`, **RevA** protocol)
+- A **Turing Smart Screen 3.5"** (USB `1a86:5722`, serial `USB35INCHIPSV2`, **RevA** protocol) — see [Where to get the screen](#where-to-get-the-screen)
 - **Python 3.11+** with `venv` available
 - `git` (`setup.sh` fetches the driver library with it)
 - Read access to the screen's serial device. On SteamOS the `deck` user gets this through a udev ACL, so no root and no `uucp` group membership is needed. On other distributions you may need to add yourself to `dialout`/`uucp`.
